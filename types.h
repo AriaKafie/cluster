@@ -7,18 +7,16 @@
 #include <ctime>
 #include <chrono>
 #include <regex>
+#include <cmath>
 
 std::string date_time(int days_since_epoch)
 {
     std::chrono::sys_days epoch = std::chrono::year{1970}/std::chrono::January/std::chrono::day{1};
 
-    // Add the number of days since epoch
     std::chrono::sys_days target_date = epoch + std::chrono::days{days_since_epoch};
 
-    // Convert to year_month_day for easy access to year, month, and day
     std::chrono::year_month_day ymd = std::chrono::year_month_day{target_date};
 
-    // Format the result as a string in yyyy-mm-dd format
     std::ostringstream oss;
     oss << int(ymd.year()) << "-"
         << std::setw(2) << std::setfill('0') << unsigned(ymd.month()) << "-"
@@ -30,8 +28,6 @@ std::string date_time(int days_since_epoch)
 inline int days_since_epoch(const std::string& date_str)
 {
     if (date_str.empty()) return 0;
-    
-    //if (!std::regex_match(date_str, std::regex("^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$"))) return 0;
     
     std::tm tm = {};
     std::istringstream ss(date_str);
@@ -64,7 +60,7 @@ struct FeatureVector
                   std::string release_date_,
                   double      popularity_,
                   double      vote_average_,
-                  double      vote_count_);
+                  int         vote_count_);
     
     int64_t id;
     std::string title;
@@ -72,7 +68,7 @@ struct FeatureVector
     int release_date;
     double popularity;
     double vote_average;
-    double vote_count;
+    int vote_count;
 };
 
 using FV = FeatureVector;
@@ -83,7 +79,7 @@ inline FeatureVector::FeatureVector(int64_t     id_,
                                     std::string release_date_,
                                     double      popularity_,
                                     double      vote_average_,
-                                    double      vote_count_)
+                                    int         vote_count_)
 :   id          (id_),
     title       (title_),
     overview    (overview_),
@@ -95,17 +91,40 @@ inline FeatureVector::FeatureVector(int64_t     id_,
 
 struct Centroid
 {
-    Centroid();
+    Centroid() = default;
 
+    void randomize()
+    {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        std::uniform_int_distribution<> year_dist(-15000, 15000);
+        std::uniform_real_distribution<> popularity_dist(1.0, 3000.0);
+        std::uniform_real_distribution<> vote_avg_dist(5.6, 8.7);
+        std::uniform_int_distribution<> vote_count_dist(300, 36000);
+
+        release_date = year_dist(gen);
+        popularity = popularity_dist(gen);
+        vote_average = vote_avg_dist(gen);
+        vote_count = vote_count_dist(gen);
+    }
+
+    double dist(FeatureVector *fv)
+    {
+        double d = std::pow(popularity - fv->popularity, 2);
+        d += std::pow(release_date - fv->release_date, 2);
+        d += std::pow(vote_average - fv->vote_average, 2);
+        d += std::pow(vote_count - fv->vote_count, 2);
+
+        return std::sqrt(d);
+    }
+    
     int release_date;
     double popularity;
     double vote_average;
-    double vote_count;
-};
+    int vote_count;
 
-Centroid::Centroid()
-{
-    
-}
+    std::vector<FeatureVector*> feature_vectors;
+};
 
 #endif
