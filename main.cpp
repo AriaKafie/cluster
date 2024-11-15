@@ -18,6 +18,8 @@
 int main()
 { 
     std::ifstream csv("movie.csv");
+    std::ofstream out("out.csv");
+    
     std::vector<FeatureVector*> data;
 
     if (!csv.is_open()) return std::cerr << "File open failed\n", 1;
@@ -64,8 +66,9 @@ int main()
 
         is >> release_date >> popularity >> vote_avg >> vote_count;
 
-        data.push_back(new FeatureVector(id, title, overview, release_date, popularity, vote_avg, vote_count));
-    }
+        out << id << "," << title << "," << overview << "," << days_since_epoch(release_date) << "," << popularity << "," << vote_avg << "," << vote_count << std::endl;
+        
+    } return 0;
 
     for (int k = 2; k <= 2; k++)
     {
@@ -87,15 +90,26 @@ int main()
         std::cout << centroids[0].feature_vectors.size() << std::endl;
         std::cout << centroids[1].feature_vectors.size() << std::endl;
 
-        /*bool changed;
-
+        bool changed;
         do
         {
-            changed = false;
+            changed = centroids[0].reposition() || centroids[1].reposition();
 
+            centroids[0].feature_vectors.clear();
+            centroids[1].feature_vectors.clear();
             
-        }
-        while (changed);*/
+            for (FeatureVector *fv : data)
+            {
+                if (centroids[0].dist(fv) <= centroids[1].dist(fv))
+                    centroids[0].feature_vectors.push_back(fv);
+                else
+                    centroids[1].feature_vectors.push_back(fv);
+            }
+            
+        } while (changed);
+
+        std::cout << centroids[0].feature_vectors.size() << std::endl;
+        std::cout << centroids[1].feature_vectors.size() << std::endl;
     }
     
     /*for (FeatureVector *fv : data)

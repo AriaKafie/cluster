@@ -118,6 +118,39 @@ struct Centroid
 
         return std::sqrt(d);
     }
+
+    bool reposition()
+    {
+        if (feature_vectors.empty()) return false;
+        
+        int64_t release_date_avg = 0;
+        double popularity_avg = 0;
+        double vote_average_avg = 0;
+        int64_t vote_count_avg = 0;
+
+        for (FeatureVector *fv : feature_vectors)
+        {
+            release_date_avg += fv->release_date;
+            popularity_avg += fv->popularity;
+            vote_average_avg += fv->vote_average;
+            vote_count_avg += fv->vote_count;
+        }
+
+        release_date_avg /= feature_vectors.size();
+        popularity_avg /= feature_vectors.size();
+        vote_average_avg /= feature_vectors.size();
+        vote_count_avg /= feature_vectors.size();
+
+        if (int(release_date_avg) == release_date && int(vote_count_avg) == vote_count)
+            return false;
+
+        release_date = release_date_avg;
+        popularity = popularity_avg;
+        vote_average = vote_average_avg;
+        vote_count = vote_count_avg;
+
+        return true;
+    }
     
     int release_date;
     double popularity;
