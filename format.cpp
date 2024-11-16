@@ -84,7 +84,11 @@ int main()
 
         is >> release_date >> popularity >> vote_avg >> vote_count;
 
-        out << id << "," << title << "," << overview << "," << days_since_epoch(release_date) << "," << popularity << "," << vote_avg << "," << vote_count << std::endl;
+        int epoch_days = days_since_epoch(release_date);
+        if (epoch_days <= 0)
+            std::cout << release_date << ": " << epoch_days << std::endl;
+        
+        out << id << "," << title << "," << overview << "," << epoch_days << "," << popularity << "," << vote_avg << "," << vote_count << std::endl;
         
     }
 
