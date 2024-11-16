@@ -14,8 +14,7 @@ numerical_data = numerical_data.dropna()
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(numerical_data)
 
-for k in range(3, 6):
-    
+for k in range(2, 5):
     kmeans = KMeans(n_clusters=k, random_state=42)
     kmeans.fit(scaled_data)
 
@@ -27,7 +26,6 @@ for k in range(3, 6):
     data['is_anomaly'] = distances > threshold
 
     anomalies = data[data['is_anomaly']]
-    anomalies.to_csv('anomalies.csv', index=False)
 
-    print("With K =", k, "there were", anomalies.shape[0], "anomalies detected:")
+    print("Results from K =", k)
     print(anomalies)
