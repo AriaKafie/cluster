@@ -1,18 +1,14 @@
-#include <float.h>
-#include <limits.h>
-#include <fstream>
+
 #include <iomanip>
+#include <regex>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <initializer_list>
-#include <algorithm>
 #include <cstdint>
 #include <ctime>
-#include <vector>
-#include <random>
 
-inline int days_since_epoch(const std::string& date_str)
+inline int months_since_epoch(const std::string& date_str)
 {
     if (date_str.empty()) return 0;
     
@@ -20,23 +16,10 @@ inline int days_since_epoch(const std::string& date_str)
     std::istringstream ss(date_str);
     
     ss >> std::get_time(&tm, "%Y-%m-%d");
-    if (ss.fail())
-    {
-        std::cout << "Got " << date_str << std::endl;
-        throw std::invalid_argument("Invalid date format. Expected yyyy-mm-dd.");
-    }
     
-    tm.tm_hour = 0;
-    tm.tm_min = 0;
-    tm.tm_sec = 0;
-    
+    tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
     std::time_t time = std::mktime(&tm);
-    
-    if (time == -1)
-        throw std::runtime_error("Failed to convert date to time_t.");
-    
-    const int seconds_per_day = 86400 * 30; // 24 * 60 * 60 * 30
-    return static_cast<int>(time / seconds_per_day);
+    return static_cast<int>(time / (24 * 60 * 60 * 30));
 }
 
 int main()
@@ -44,53 +27,20 @@ int main()
     std::ifstream csv("movie.csv");
     std::ofstream out("out.csv");
 
-    if (!csv.is_open()) return std::cerr << "File open failed\n", 1;
+    std::string s;
+    std::getline(csv, s);
+    out << s << std::endl;
 
-    std::string line;
-    std::getline(csv, line);
-
+    std::regex pattern(R"(\d{4}-\d{2}-\d{2})");
+    
     for (std::string line; std::getline(csv, line);)
-    {
-        while (line.find("\"\"") != std::string::npos)
-            line.erase(line.find("\"\""), 2);
-
-        if (line.find(",,") != std::string::npos) continue;
-        
-        std::replace(line.begin(), line.end(), ' ', '_');
-        std::replace(line.begin(), line.end(), ',', ' ');
-        std::istringstream is(line);
-
-        int64_t index, id, vote_count;
-        double popularity, vote_avg;
-        std::string title, overview, release_date;
-
-        is >> index >> id >> title;
-
-        if (title.find('\"') != std::string::npos && title.find('\"') == title.rfind('\"'))
+        if (std::smatch match; std::regex_search(line, match, pattern))
         {
-            std::string token;
-            std::getline(is, token, '\"');
-            title += token + "\"";
+            size_t index = match.position(0);
+
+            int64_t time = months_since_epoch(line.substr(index, std::string("yyyy-mm-dd").size()));
+
+            std::string line_new = line.substr(0, index) + std::to_string(time) + line.substr(index + std::string("yyyy-mm-dd").size());
+            out << line_new << std::endl;
         }
-        
-        is >> overview;
-
-        if (overview.find('\"') != std::string::npos && overview.find('\"') == overview.rfind('\"'))
-        {
-            std::string token;
-            std::getline(is, token, '\"');
-            overview += token + "\"";
-        }
-
-        is >> release_date >> popularity >> vote_avg >> vote_count;
-
-        int epoch_days = days_since_epoch(release_date);
-        if (epoch_days <= 0)
-            std::cout << release_date << ": " << epoch_days << std::endl;
-        
-        out << id << "," << title << "," << overview << "," << epoch_days << "," << popularity << "," << vote_avg << "," << vote_count << std::endl;
-        
-    }
-
-    return 0;
 }
