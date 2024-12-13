@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import DBSCAN
+from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score
 
 # Load the CSV file
 data = pd.read_csv('video_game_review.csv')  # Replace with your actual file path
@@ -16,22 +18,30 @@ scaler = StandardScaler()
 X_scaled = scaler.fit_transform(features)
 
 # Perform DBSCAN clustering
-dbscan = DBSCAN(eps=0.5, min_samples=5)  # Adjust eps and min_samples as needed
+
+value_eps = 0.4
+value_min = 6
+
+dbscan = DBSCAN(eps=value_eps, min_samples=value_min)  # Adjust eps and min_samples as needed
 dbscan_labels = dbscan.fit_predict(X_scaled)
+
+# Reduce dimensions to 2D using PCA
+pca = PCA(n_components=2)
+X_2d = pca.fit_transform(X_scaled)
 
 # Plot the clustering result using a scatter plot
 plt.figure(figsize=(8, 6))
 
 # Plot clusters (using dbscan_labels as color code)
-plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=dbscan_labels, cmap='viridis', marker='o')
+plt.scatter(X_2d[:, 0], X_2d[:, 1], c=dbscan_labels, cmap='viridis', marker='o')
 
 # Highlight noise points (label = -1) in red
-plt.scatter(X_scaled[dbscan_labels == -1, 0], X_scaled[dbscan_labels == -1, 1], c='red', marker='x', label='Noise')
+plt.scatter(X_2d[dbscan_labels == -1, 0], X_2d[dbscan_labels == -1, 1], c='red', marker='x', label='Noise')
 
 # Adding titles and labels
-plt.title("DBSCAN Clustering on Video Game Reviews")
-plt.xlabel('Comment Count')
-plt.ylabel('Likes Received')
+plt.title("DBSCAN Clustering on Video Game Reviews (2D PCA)")
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
 
 # Show legend
 plt.legend()
