@@ -45,7 +45,7 @@ plt.scatter(X_pca[anomalies, 0], X_pca[anomalies, 1], c='red', s=100, edgecolor=
 
 plt.scatter(centroids_pca[:, 0], centroids_pca[:, 1], c='blue', marker='X', s=200, label='Centroids')
 
-plt.title("K-Means Clustering with Anomaly Highlighting (Movies)")
+plt.title("K-Means Clustering with Anomaly Highlighting (Video Game Reviews)")
 plt.xlabel("PCA Dimension 1")
 plt.ylabel("PCA Dimension 2")
 plt.legend()
