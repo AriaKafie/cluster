@@ -17,10 +17,19 @@ normalized_data = scaler.fit_transform(features)
 # Perform hierarchical clustering
 Z = linkage(normalized_data, method='ward')  # Use 'ward', 'complete', 'single', etc.
 
-# Plot the dendrogram
-plt.figure(figsize=(10, 7))
-dendrogram(Z, labels=data.index, leaf_rotation=90, leaf_font_size=10)
+plt.figure(figsize=(20, 10))
+dendrogram(Z, no_labels=True)
 plt.title('Hierarchical Clustering Dendrogram')
 plt.xlabel('Sample Index')
 plt.ylabel('Distance')
 plt.show()
+"""
+# Plot the dendrogram
+plt.figure(figsize=(10, 7))
+#dendrogram(Z, labels=data.index, leaf_rotation=90, leaf_font_size=10)
+
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('Sample Index')
+plt.ylabel('Distance')
+plt.show()
+"""

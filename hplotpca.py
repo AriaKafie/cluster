@@ -22,11 +22,10 @@ reduced_data = pca.fit_transform(normalized_data)
 # Perform hierarchical clustering on reduced data
 Z_reduced = linkage(reduced_data, method='ward')
 
-# Plot the dendrogram
-plt.figure(figsize=(10, 7))
-dendrogram(Z_reduced, labels=data.index, leaf_rotation=90, leaf_font_size=10)
-plt.title('Hierarchical Clustering Dendrogram (PCA Reduced)')
+plt.figure(figsize=(20, 10))
+dendrogram(Z_reduced, no_labels=True)
+plt.title('Hierarchical Clustering Dendrogram')
 plt.xlabel('Sample Index')
 plt.ylabel('Distance')
-plt.savefig('images/hplot_reduced.png')
 plt.savefig('images/hplotpca.png')
+
