@@ -10,7 +10,7 @@ file_path = 'movie.csv'
 data = pd.read_csv(file_path)
 
 selected_columns = ['popularity', 'vote_average', 'vote_count']
-X = data[selected_columns].dropna()  # drop rows with missing values
+X = data[selected_columns].dropna() 
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)

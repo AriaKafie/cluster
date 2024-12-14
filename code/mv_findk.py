@@ -6,10 +6,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 
-data = pd.read_csv('video_game_review.csv')
+file_path = 'movie.csv'
+data = pd.read_csv(file_path)
 
-selected_columns = ['Comment Count', 'Likes Received', 'Rating/10']
-X = data[selected_columns].dropna()  # drop rows with missing values
+selected_columns = ['popularity', 'vote_average', 'vote_count']
+X = data[selected_columns].dropna()
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
@@ -19,16 +20,13 @@ for value_k in range(2, 6):
     kmeans_labels = kmeans.fit_predict(X_scaled)
     centroids = kmeans.cluster_centers_
 
-    # record silhouette scores and inertia
     s_score = silhouette_score(X_scaled, kmeans_labels)
     i_score = kmeans.inertia_
-    # determine quality by combining s_score with i_score
     score = (100000 - i_score) * s_score
     print("K =", value_k, "Silhouette score:", s_score, "Inertia:", i_score, "overall:", score)
 
     distances = np.linalg.norm(X_scaled - centroids[kmeans_labels], axis=1)
 
-    #define anomalies to be at or above the 99.5th percentile
     threshold = np.percentile(distances, 99.5)
     anomalies = distances > threshold
 
@@ -48,6 +46,4 @@ for value_k in range(2, 6):
     plt.xlabel("PCA Dimension 1")
     plt.ylabel("PCA Dimension 2")
     plt.legend()
-    #plt.savefig('../images/vgk2.png')
-    #plt.show()
 
